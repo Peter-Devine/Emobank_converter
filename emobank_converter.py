@@ -21,23 +21,6 @@ if not os.path.exists(OUTPUT_PATH):
 
 emobank = pd.read_csv(INPUT_PATH + "/emobank.csv")
 
-fraction = 0.2
-
-np.random.seed(seed=42)
-
-test_indices = np.random.choice(emobank.index, size=int(round(fraction*emobank.shape[0])), replace=False)
-train_indices = emobank.index.difference(test_indices)
-val_indices = np.random.choice(train_indices, size=int(round(fraction*len(train_indices))), replace=False)
-train_indices = train_indices.difference(val_indices)
-
-emo_bank_train = emobank.loc[train_indices,:]
-emo_bank_val = emobank.loc[val_indices,:]
-emo_bank_test = emobank.loc[test_indices,:]
-
-split_dataframe = {"train": emo_bank_train,
-                  "val": emo_bank_val,
-                  "test": emo_bank_test}
-
 def context_apply(current_id):
     position = re.finditer('_', current_id)
 
@@ -65,6 +48,23 @@ def context_apply(current_id):
 context_list = list(map(context_apply, list(emobank["id"])))
 
 emobank["context"] = context_list
+
+fraction = 0.2
+
+np.random.seed(seed=42)
+
+test_indices = np.random.choice(emobank.index, size=int(round(fraction*emobank.shape[0])), replace=False)
+train_indices = emobank.index.difference(test_indices)
+val_indices = np.random.choice(train_indices, size=int(round(fraction*len(train_indices))), replace=False)
+train_indices = train_indices.difference(val_indices)
+
+emo_bank_train = emobank.loc[train_indices,:]
+emo_bank_val = emobank.loc[val_indices,:]
+emo_bank_test = emobank.loc[test_indices,:]
+
+split_dataframe = {"train": emo_bank_train,
+                  "val": emo_bank_val,
+                  "test": emo_bank_test}
 
 training_bins = {"V": "",
                 "A": "",
