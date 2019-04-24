@@ -23,9 +23,11 @@ emobank = pd.read_csv(INPUT_PATH + "/emobank.csv")
 
 fraction = 0.2
 
-test_indices = np.random.choice(emobank.index, size=round(fraction*emobank.shape[0]), replace=False)
+np.random.seed(seed=42)
+
+test_indices = np.random.choice(emobank.index, size=int(round(fraction*emobank.shape[0])), replace=False)
 train_indices = emobank.index.difference(test_indices)
-val_indices = np.random.choice(train_indices, size=round(fraction*len(train_indices)), replace=False)
+val_indices = np.random.choice(train_indices, size=int(round(fraction*len(train_indices))), replace=False)
 train_indices = train_indices.difference(val_indices)
 
 emo_bank_train = emobank.loc[train_indices,:]
