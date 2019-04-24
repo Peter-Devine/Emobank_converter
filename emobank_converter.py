@@ -1,8 +1,8 @@
 import re
-from sklearn.model_selection import train_test_split
 import argparse
 import os
 import pandas as pd
+import numpy as np
 
 # Takes input and output directories as arguments
 parser=argparse.ArgumentParser()
@@ -20,6 +20,21 @@ if not os.path.exists(OUTPUT_PATH):
     os.mkdir(OUTPUT_PATH)
 
 emobank = pd.read_csv(INPUT_PATH + "/emobank.csv")
+
+fraction = 0.2
+
+test_indices = np.random.choice(emobank.index, size=round(fraction*emobank.shape[0]), replace=False)
+train_indices = emobank.index.difference(test_indices)
+val_indices = np.random.choice(train_indices, size=round(fraction*len(train_indices)), replace=False)
+train_indices = train_indices.difference(val_indices)
+
+emo_bank_train = emobank.loc[train_indices,:]
+emo_bank_val = emobank.loc[val_indices,:]
+emo_bank_test = emobank.loc[test_indices,:]
+
+split_dataframe = {"train": emo_bank_train,
+                  "val": emo_bank_val,
+                  "test": emo_bank_test}
 
 def context_apply(current_id):
     position = re.finditer('_', current_id)
@@ -50,21 +65,27 @@ context_list = list(map(context_apply, list(emobank["id"])))
 emobank["context"] = context_list
 
 emotion_columns = ["V", "A", "D"]
-for column in emotion_columns:
-    number_of_bins = VAD_BIN_NUM
-    bin_labels = [column+str(bin_label_index+1) for bin_label_index in range(number_of_bins)]
-    binned_data = pd.cut(emobank[column], bins=number_of_bins, retbins=True)
-    bins = binned_data[1]
-    emobank[column + "_binned"] = pd.cut(emobank[column], bins=bins, labels=bin_labels)
+
+for dataframe_type in ["train", "val", "test"]:
     
-emobank_train, emobank_test = train_test_split(emobank, test_size=0.3, random_state=42)
+    dataframe = split_dataframe[dataframe_type]
+    
+    context_list = list(map(context_apply, list(dataframe["id"])))
 
-emobank_train, emobank_val = train_test_split(emobank_train, test_size=0.3, random_state=42)
+    dataframe["context"] = context_list
 
-emobank_train = emobank_train.reset_index(drop=True)
-emobank_val = emobank_val.reset_index(drop=True)
-emobank_test = emobank_test.reset_index(drop=True)
-
-emobank_train.to_csv(OUTPUT_PATH+"/train.tsv", sep='\t', encoding="utf-8")
-emobank_val.to_csv(OUTPUT_PATH+"/dev.tsv", sep='\t', encoding="utf-8")
-emobank_test.to_csv(OUTPUT_PATH+"/test.tsv", sep='\t', encoding="utf-8")
+    emotion_columns = ["V", "A", "D"]
+    training_bins = {}
+    
+    for column in emotion_columns:
+        number_of_bins = 7
+        bin_labels = [column+str(bin_label_index+1) for bin_label_index in range(number_of_bins)]
+        if dataframe_type == "train":
+            binned_data = pd.cut(dataframe[column], bins=number_of_bins, retbins=True)
+            bins = binned_data[1]
+            training_bins[column] = bins
+        else:
+            bins = training_bins[column]
+        dataframe[column + "_binned"] = pd.cut(emobank[column], bins=bins, labels=bin_labels)
+     
+    dataframe.reset_index(drop=True).to_csv(OUTPUT_PATH+"/"+dataframe_type+".tsv", sep='\t', encoding="utf-8")   
