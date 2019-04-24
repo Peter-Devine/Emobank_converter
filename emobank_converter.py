@@ -66,8 +66,6 @@ context_list = list(map(context_apply, list(emobank["id"])))
 
 emobank["context"] = context_list
 
-emotion_columns = ["V", "A", "D"]
-
 for dataframe_type in ["train", "val", "test"]:
     
     dataframe = split_dataframe[dataframe_type]
@@ -77,7 +75,9 @@ for dataframe_type in ["train", "val", "test"]:
     dataframe["context"] = context_list
 
     emotion_columns = ["V", "A", "D"]
-    training_bins = {}
+    training_bins = {"V": "",
+                    "A": "",
+                    "D": ""}
     
     for column in emotion_columns:
         number_of_bins = 7
