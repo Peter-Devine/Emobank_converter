@@ -70,7 +70,7 @@ training_bins = {"V": "",
                 "A": "",
                 "D": ""}
     
-for dataframe_type in ["train", "val", "test"]:
+for dataframe_type in ["train", "dev", "test"]:
     
     dataframe = split_dataframe[dataframe_type]
     
