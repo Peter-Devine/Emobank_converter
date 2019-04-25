@@ -85,6 +85,6 @@ for dataframe_type in ["train", "dev", "test"]:
             training_bins[column] = bins
         else:
             bins = training_bins[column]
-        dataframe[column + "_binned"] = pd.cut(emobank[column], bins=bins, labels=bin_labels)
+        dataframe[column + "_binned"] = pd.cut(dataframe[column], bins=bins, labels=bin_labels)
      
     dataframe.reset_index(drop=True).to_csv(OUTPUT_PATH+"/"+dataframe_type+".tsv", sep='\t', encoding="utf-8")   
