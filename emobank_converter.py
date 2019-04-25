@@ -77,7 +77,7 @@ for dataframe_type in ["train", "dev", "test"]:
     emotion_columns = ["V", "A", "D"]
     
     for column in emotion_columns:
-        number_of_bins = 7
+        number_of_bins = VAD_BIN_NUM
         bin_labels = [column+str(bin_label_index+1) for bin_label_index in range(number_of_bins)]
         if dataframe_type == "train":
             binned_data = pd.cut(dataframe[column], bins=number_of_bins, retbins=True)
