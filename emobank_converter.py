@@ -82,6 +82,8 @@ for dataframe_type in ["train", "dev", "test"]:
         if dataframe_type == "train":
             binned_data = pd.cut(dataframe[column], bins=number_of_bins, retbins=True)
             bins = binned_data[1]
+            bins[0] = -999
+            bins[len(bins)-1] = 999
             training_bins[column] = bins
         else:
             bins = training_bins[column]
